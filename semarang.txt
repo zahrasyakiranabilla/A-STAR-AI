@@ -1,0 +1,44 @@
+Name: Jl. Ahmad Yani
+Latitude: -6.990485
+Longitude: 110.423839
+Neighbours: Jl. Pahlawan, Simpang Lima
+
+Name: Jl. Pahlawan
+Latitude: -6.997269
+Longitude: 110.419265
+Neighbours: Jl. Ahmad Yani, Jl. Imam Barjo, Jl. Veteran, Simpang Lima
+
+Name: Jl. Imam Barjo
+Latitude: -6.993382
+Longitude: 110.42167
+Neighbours: Jl. Pahlawan, Jl. Mentri Supeno
+
+Name: Jl. Veteran
+Latitude: -6.995821
+Longitude: 110.414089
+Neighbours: Jl. Pahlawan, Jl. Dokter Kariadi
+
+Name: Jl. Dokter Kariadi
+Latitude: -6.993414
+Longitude: 110.413746
+Neighbours: Jl. Veteran, Jl. Mentri Supeno
+
+Name: Jl. Mentri Supeno
+Latitude: -6.993265
+Longitude: 110.419242
+Neighbours: Jl. Imam Barjo, Jl. Dokter Kariadi, Jl. Pandanaran II
+
+Name: Jl. Pandanaran II
+Latitude: -6.991625
+Longitude: 110.4201
+Neighbours: Jl. Mentri Supeno, Jl. Pandanaran
+
+Name: Jl. Pandanaran
+Latitude: -6.988792
+Longitude: 110.420099
+Neighbours: Jl. Pandanaran II, Simpang Lima
+
+Name: Simpang Lima
+Latitude: -6.989985
+Longitude: 110.422203
+Neighbours: Jl. Ahmad Yani, Jl. Pahlawan, Jl. Pandanaran

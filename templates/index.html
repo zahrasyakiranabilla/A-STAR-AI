@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semarang Pathfinder</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .visualization {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .viz-header {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        .results {
+            display: flex;
+            padding: 30px;
+            gap: 50px;
+        }
+        .result-section {
+            flex: 1;
+            text-align: center;
+        }
+        .result-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .solution-list {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #555;
+        }
+        .distance {
+            font-size: 24px;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .circle-placeholder {
+            width: 100px;
+            height: 100px;
+            background-color: #888;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        .success {
+            color: green;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Semarang Pathfinder</h1>
+        
+        <div class="controls">
+            <div class="form-group">
+                <label for="filename">Filename:</label>
+                <input type="text" id="filename" value="semarang.txt" placeholder="Enter filename">
+                <button onclick="loadData()">Load Data</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="startLocation">Lokasi Awal:</label>
+                <select id="startLocation">
+                    <option value="">Pilih lokasi awal</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="endLocation">Lokasi Tujuan:</label>
+                <select id="endLocation">
+                    <option value="">Pilih lokasi tujuan</option>
+                </select>
+            </div>
+            
+            <button onclick="findPath()">Cari Rute</button>
+            <div id="message"></div>
+        </div>
+        
+        <div class="visualization">
+            <div class="viz-header">Visualization</div>
+            <div id="map"></div>
+            <div class="results" id="results" style="display: none;">
+                <div class="result-section">
+                    <div class="circle-placeholder"></div>
+                    <div class="result-title">Solution:</div>
+                    <div class="solution-list" id="solutionList"></div>
+                </div>
+                <div class="result-section">
+                    <div class="circle-placeholder"></div>
+                    <div class="result-title">Jarak antara simpul asal dan tujuan:</div>
+                    <div class="distance" id="distanceResult"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map;
+        let markers = [];
+        let pathLine;
+        
+        // Initialize map
+        function initMap() {
+            map = L.map('map').setView([-6.9932, 110.4203], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        }
+        
+        // Load data from file
+        async function loadData() {
+            const filename = document.getElementById('filename').value;
+            const messageDiv = document.getElementById('message');
+            
+            try {
+                const response = await fetch('/load_data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ filename: filename })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    messageDiv.innerHTML = `<div class="success">${data.message}</div>`;
+                    populateLocationSelects();
+                    displayNodesOnMap(data.nodes);
+                } else {
+                    messageDiv.innerHTML = `<div class="error">${data.message}</div>`;
+                }
+            } catch (error) {
+                messageDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        // Populate location select dropdowns
+        async function populateLocationSelects() {
+            try {
+                const response = await fetch('/get_nodes');
+                const nodes = await response.json();
+                
+                const startSelect = document.getElementById('startLocation');
+                const endSelect = document.getElementById('endLocation');
+                
+                // Clear existing options
+                startSelect.innerHTML = '<option value="">Pilih lokasi awal</option>';
+                endSelect.innerHTML = '<option value="">Pilih lokasi tujuan</option>';
+                
+                // Add node options
+                nodes.forEach(node => {
+                    startSelect.innerHTML += `<option value="${node}">${node}</option>`;
+                    endSelect.innerHTML += `<option value="${node}">${node}</option>`;
+                });
+            } catch (error) {
+                console.error('Error loading nodes:', error);
+            }
+        }
+        
+        // Display nodes on map
+        function displayNodesOnMap(nodes) {
+            // Clear existing markers
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+            
+            // Add markers for each node
+            nodes.forEach(node => {
+                const marker = L.marker([node.latitude, node.longitude])
+                    .addTo(map)
+                    .bindPopup(`<b>${node.name}</b><br>Lat: ${node.latitude}<br>Lng: ${node.longitude}`);
+                markers.push(marker);
+            });
+        }
+        
+        // Find path between locations
+        async function findPath() {
+            const start = document.getElementById('startLocation').value;
+            const end = document.getElementById('endLocation').value;
+            const messageDiv = document.getElementById('message');
+            
+            if (!start || !end) {
+                messageDiv.innerHTML = '<div class="error">Please select both start and end locations</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/find_path', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ start: start, end: end })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    messageDiv.innerHTML = `<div class="success">Path found!</div>`;
+                    displayPath(data.coordinates, data.path, data.distance);
+                } else {
+                    messageDiv.innerHTML = `<div class="error">${data.message}</div>`;
+                }
+            } catch (error) {
+                messageDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        // Display path on map and show results
+        function displayPath(coordinates, path, distance) {
+            // Remove existing path
+            if (pathLine) {
+                map.removeLayer(pathLine);
+            }
+            
+            // Create path line
+            const latLngs = coordinates.map(coord => [coord.lat, coord.lng]);
+            pathLine = L.polyline(latLngs, { color: 'red', weight: 3 }).addTo(map);
+            
+            // Fit map to path
+            map.fitBounds(pathLine.getBounds());
+            
+            // Show results
+            document.getElementById('results').style.display = 'flex';
+            document.getElementById('solutionList').innerHTML = path.join('<br>');
+            document.getElementById('distanceResult').innerHTML = `${distance.toFixed(10)} km`;
+        }
+        
+        // Initialize map when page loads
+        window.onload = function() {
+            initMap();
+        };
+    </script>
+</body>
+</html>
