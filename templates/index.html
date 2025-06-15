@@ -3,158 +3,723 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semarang Pathfinder</title>
+    <title>Semarang Pathfinder - A* Algorithm</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e2e8f0;
+        }
+
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
-        h1 {
+
+        .header {
             text-align: center;
-            color: #333;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            color: white;
         }
-        .controls {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00d4ff 0%, #5b86e5 50%, #36d1dc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 8px rgba(0, 212, 255, 0.3);
         }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            font-weight: 300;
+            color: #94a3b8;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .controls-panel {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .controls-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 28px;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .controls-title i {
+            color: #00d4ff;
+        }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 28px;
         }
-        label {
+
+        .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #cbd5e1;
+            font-size: 0.95rem;
         }
-        input, select, button {
+
+        .form-group label i {
+            color: #00d4ff;
+            margin-right: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-group input,
+        .form-group select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 16px 20px;
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            border-radius: 16px;
             font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(15, 23, 42, 0.6);
+            color: #f1f5f9;
+            font-family: inherit;
         }
-        button {
-            background-color: #007bff;
-            color: white;
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.1);
+            transform: translateY(-2px);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .form-group select option {
+            background: #1e293b;
+            color: #f1f5f9;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px 28px;
             border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .visualization {
-            background: white;
-            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-family: inherit;
+            text-transform: none;
+            position: relative;
             overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .viz-header {
-            background-color: #333;
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff 0%, #5b86e5 100%);
             color: white;
-            padding: 15px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
+            margin-top: 12px;
         }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            margin-top: 16px;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+        }
+
+        .message {
+            margin-top: 16px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            border-left: 4px solid;
+        }
+
+        .message.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+            border-left-color: #22c55e;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border-left-color: #ef4444;
+        }
+
+        .visualization-panel {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .viz-header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #f1f5f9;
+            padding: 28px 32px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .viz-header i {
+            color: #00d4ff;
+        }
+
         #map {
             height: 500px;
             width: 100%;
+            position: relative;
         }
-        .results {
-            display: flex;
-            padding: 30px;
-            gap: 50px;
+
+        .results-section {
+            padding: 32px;
+            display: none;
         }
-        .result-section {
-            flex: 1;
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%);
+            border-radius: 20px;
+            padding: 28px;
             text-align: center;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
         }
-        .result-title {
-            font-size: 32px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 20px;
+
+        .result-card:hover {
+            transform: translateY(-5px);
         }
-        .solution-list {
-            font-size: 18px;
-            line-height: 1.6;
-            color: #555;
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #00d4ff 0%, #5b86e5 100%);
         }
-        .distance {
-            font-size: 24px;
-            color: #007bff;
-            font-weight: bold;
-        }
-        .circle-placeholder {
-            width: 100px;
-            height: 100px;
-            background-color: #888;
+
+        .result-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #00d4ff 0%, #5b86e5 100%);
             border-radius: 50%;
-            margin: 0 auto 20px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
         }
-        .error {
-            color: red;
-            margin-top: 10px;
+
+        .result-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 16px;
         }
-        .success {
-            color: green;
-            margin-top: 10px;
+
+        .solution-list {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #cbd5e1;
+        }
+
+        .distance-display {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #00d4ff 0%, #5b86e5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            margin-top: 12px;
+        }
+
+        .distance-details {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%);
+            border-radius: 20px;
+            padding: 28px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .details-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .details-header i {
+            color: #00d4ff;
+        }
+
+        .segment-list {
+            max-height: 320px;
+            overflow-y: auto;
+            margin-bottom: 24px;
+        }
+
+        .segment-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .segment-list::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 4px;
+        }
+
+        .segment-list::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #00d4ff 0%, #5b86e5 100%);
+            border-radius: 4px;
+        }
+
+        .segment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            margin: 10px 0;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 14px;
+            border-left: 4px solid #00d4ff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .segment-item:hover {
+            transform: translateX(8px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.15);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .segment-from-to {
+            flex: 1;
+            font-size: 14px;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .segment-distance {
+            font-weight: 600;
+            color: #00d4ff;
+            font-size: 14px;
+            background: rgba(0, 212, 255, 0.1);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .total-summary {
+            background: linear-gradient(135deg, #00d4ff 0%, #5b86e5 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .summary-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .summary-item:hover {
+            transform: scale(1.05);
+        }
+
+        .summary-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 6px;
+        }
+
+        .summary-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 24px;
+            color: #00d4ff;
+        }
+
+        .loading i {
+            font-size: 2.5rem;
+            animation: spin 1s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        .loading p {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .controls-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-panel,
+            .visualization-panel {
+                margin: 0 -10px;
+                border-radius: 20px;
+            }
+        }
+
+        /* Custom Leaflet Styling */
+        .leaflet-popup-content-wrapper {
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            background: rgba(30, 41, 59, 0.95);
+            color: #f1f5f9;
+            backdrop-filter: blur(10px);
+        }
+
+        .leaflet-popup-content {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #f1f5f9;
+        }
+
+        .leaflet-popup-tip {
+            background: rgba(30, 41, 59, 0.95);
+        }
+
+        .leaflet-control-zoom a {
+            border-radius: 10px;
+            font-size: 18px;
+            background: rgba(30, 41, 59, 0.9);
+            color: #f1f5f9;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .leaflet-control-zoom a:hover {
+            background: rgba(0, 212, 255, 0.8);
+            color: white;
+        }
+
+        /* Glowing effects */
+        .glow {
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Status indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-loading {
+            background: rgba(0, 212, 255, 0.15);
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        /* Floating animation for icons */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* A* Algorithm Badge */
+        .algorithm-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #5b86e5 0%, #36d1dc 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 12px;
+            box-shadow: 0 4px 12px rgba(91, 134, 229, 0.3);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Semarang Pathfinder</h1>
-        
-        <div class="controls">
-            <div class="form-group">
-                <label for="filename">Filename:</label>
-                <input type="text" id="filename" value="semarang.txt" placeholder="Enter filename">
-                <button onclick="loadData()">Load Data</button>
-            </div>
-            
-            <div class="form-group">
-                <label for="startLocation">Lokasi Awal:</label>
-                <select id="startLocation">
-                    <option value="">Pilih lokasi awal</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="endLocation">Lokasi Tujuan:</label>
-                <select id="endLocation">
-                    <option value="">Pilih lokasi tujuan</option>
-                </select>
-            </div>
-            
-            <button onclick="findPath()">Cari Rute</button>
-            <div id="message"></div>
+        <div class="header">
+            <h1>
+                <i class="fas fa-route float"></i> 
+                Semarang Pathfinder
+                <span class="algorithm-badge">
+                    <i class="fas fa-brain"></i>
+                    A* Algorithm
+                </span>
+            </h1>
+            <p>Temukan rute terpendek antar lokasi di Semarang dengan algoritma A* yang efisien</p>
         </div>
         
-        <div class="visualization">
-            <div class="viz-header">Visualization</div>
-            <div id="map"></div>
-            <div class="results" id="results" style="display: none;">
-                <div class="result-section">
-                    <div class="circle-placeholder"></div>
-                    <div class="result-title">Solution:</div>
-                    <div class="solution-list" id="solutionList"></div>
+        <div class="main-content">
+            <div class="controls-panel">
+                <div class="controls-title">
+                    <i class="fas fa-cog"></i>
+                    Pengaturan Rute
                 </div>
-                <div class="result-section">
-                    <div class="circle-placeholder"></div>
-                    <div class="result-title">Jarak antara simpul asal dan tujuan:</div>
-                    <div class="distance" id="distanceResult"></div>
+                
+                <div class="form-group">
+                    <label for="filename">
+                        <i class="fas fa-file-alt"></i> File Data:
+                    </label>
+                    <div class="input-wrapper">
+                        <input type="text" id="filename" value="semarang.txt" placeholder="Masukkan nama file">
+                    </div>
+                    <button class="btn btn-secondary" onclick="loadData()">
+                        <i class="fas fa-upload"></i>
+                        Muat Data
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="startLocation">
+                        <i class="fas fa-play-circle"></i> Lokasi Awal:
+                    </label>
+                    <select id="startLocation">
+                        <option value="">Pilih lokasi awal</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="endLocation">
+                        <i class="fas fa-flag-checkered"></i> Lokasi Tujuan:
+                    </label>
+                    <select id="endLocation">
+                        <option value="">Pilih lokasi tujuan</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" onclick="findPath()">
+                    <i class="fas fa-search"></i>
+                    Cari Rute Terpendek
+                </button>
+                
+                <div id="message"></div>
+                
+                <div class="loading" id="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Mencari rute dengan A*...</p>
+                </div>
+            </div>
+            
+            <div class="visualization-panel">
+                <div class="viz-header">
+                    <i class="fas fa-map-marked-alt"></i>
+                    Visualisasi Peta
+                </div>
+                <div id="map"></div>
+                
+                <div class="results-section" id="results">
+                    <div class="results-grid">
+                        <div class="result-card">
+                            <div class="result-icon">
+                                <i class="fas fa-list-ol"></i>
+                            </div>
+                            <div class="result-title">Rute Perjalanan</div>
+                            <div class="solution-list" id="solutionList"></div>
+                        </div>
+                        
+                        <div class="result-card">
+                            <div class="result-icon">
+                                <i class="fas fa-ruler"></i>
+                            </div>
+                            <div class="result-title">Total Jarak</div>
+                            <div class="distance-display" id="distanceResult"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="distance-details">
+                        <div class="details-header">
+                            <i class="fas fa-route"></i>
+                            Detail Perjalanan
+                        </div>
+                        
+                        <div class="segment-list" id="segmentList"></div>
+                        
+                        <div class="total-summary">
+                            <div class="summary-title">
+                                <i class="fas fa-chart-bar"></i>
+                                Ringkasan Rute
+                            </div>
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <div class="summary-label">Total Jarak</div>
+                                    <div class="summary-value" id="totalDistanceDetail"></div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">Jumlah Segmen</div>
+                                    <div class="summary-value" id="totalSegments"></div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">Jumlah Titik</div>
+                                    <div class="summary-value" id="totalNodes"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -166,18 +731,50 @@
         let markers = [];
         let pathLine;
         
-        // Initialize map
+        // Initialize map with custom styling
         function initMap() {
-            map = L.map('map').setView([-6.9932, 110.4203], 13);
+            map = L.map('map', {
+                zoomControl: true,
+                scrollWheelZoom: true,
+                doubleClickZoom: true,
+                boxZoom: true,
+                keyboard: true,
+                dragging: true,
+                touchZoom: true
+            }).setView([-6.9932, 110.4203], 13);
+            
+            // Light theme tile layer
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19,
+                tileSize: 256,
+                zoomOffset: 0
             }).addTo(map);
+            
+            // Add scale control
+            L.control.scale({
+                position: 'bottomright',
+                metric: true,
+                imperial: false
+            }).addTo(map);
+        }
+        
+        // Show loading state
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+        
+        // Hide loading state
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
         }
         
         // Load data from file
         async function loadData() {
             const filename = document.getElementById('filename').value;
             const messageDiv = document.getElementById('message');
+            
+            showLoading();
             
             try {
                 const response = await fetch('/load_data', {
@@ -191,14 +788,22 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    messageDiv.innerHTML = `<div class="success">${data.message}</div>`;
-                    populateLocationSelects();
+                    messageDiv.innerHTML = `<div class="message success fade-in">
+                        <i class="fas fa-check-circle"></i> ${data.message}
+                    </div>`;
+                    await populateLocationSelects();
                     displayNodesOnMap(data.nodes);
                 } else {
-                    messageDiv.innerHTML = `<div class="error">${data.message}</div>`;
+                    messageDiv.innerHTML = `<div class="message error fade-in">
+                        <i class="fas fa-exclamation-circle"></i> ${data.message}
+                    </div>`;
                 }
             } catch (error) {
-                messageDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                messageDiv.innerHTML = `<div class="message error fade-in">
+                    <i class="fas fa-times-circle"></i> Error: ${error.message}
+                </div>`;
+            } finally {
+                hideLoading();
             }
         }
         
@@ -225,31 +830,57 @@
             }
         }
         
-        // Display nodes on map
+        // Display nodes on map with custom markers
         function displayNodesOnMap(nodes) {
             // Clear existing markers
             markers.forEach(marker => map.removeLayer(marker));
             markers = [];
             
+            // Custom marker icon
+            const customIcon = L.divIcon({
+                className: 'custom-marker',
+                html: '<i class="fas fa-map-marker-alt" style="color: #00d4ff; font-size: 24px; filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.6));"></i>',
+                iconSize: [24, 24],
+                iconAnchor: [12, 24]
+            });
+            
             // Add markers for each node
             nodes.forEach(node => {
-                const marker = L.marker([node.latitude, node.longitude])
+                const marker = L.marker([node.latitude, node.longitude], { icon: customIcon })
                     .addTo(map)
-                    .bindPopup(`<b>${node.name}</b><br>Lat: ${node.latitude}<br>Lng: ${node.longitude}`);
+                    .bindPopup(`
+                        <div style="text-align: center; padding: 8px;">
+                            <h4 style="margin: 0 0 10px 0; color: #00d4ff; font-weight: 600;">${node.name}</h4>
+                            <p style="margin: 0; font-size: 12px; color: #cbd5e1;">
+                                <i class="fas fa-map-pin" style="color: #00d4ff;"></i> ${node.latitude.toFixed(6)}, ${node.longitude.toFixed(6)}
+                            </p>
+                        </div>
+                    `);
                 markers.push(marker);
             });
         }
         
-        // Find path between locations
+        // Find path between locations using A* algorithm
         async function findPath() {
             const start = document.getElementById('startLocation').value;
             const end = document.getElementById('endLocation').value;
             const messageDiv = document.getElementById('message');
             
             if (!start || !end) {
-                messageDiv.innerHTML = '<div class="error">Please select both start and end locations</div>';
+                messageDiv.innerHTML = `<div class="message error fade-in">
+                    <i class="fas fa-exclamation-triangle"></i> Silakan pilih lokasi awal dan tujuan
+                </div>`;
                 return;
             }
+            
+            if (start === end) {
+                messageDiv.innerHTML = `<div class="message error fade-in">
+                    <i class="fas fa-exclamation-triangle"></i> Lokasi awal dan tujuan harus berbeda
+                </div>`;
+                return;
+            }
+            
+            showLoading();
             
             try {
                 const response = await fetch('/find_path', {
@@ -263,34 +894,131 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    messageDiv.innerHTML = `<div class="success">Path found!</div>`;
-                    displayPath(data.coordinates, data.path, data.distance);
+                    messageDiv.innerHTML = `<div class="message success fade-in">
+                        <i class="fas fa-check-circle"></i> 
+                        Rute ditemukan dengan algoritma <strong>A*</strong>! Total jarak: <strong>${data.total_distance.toFixed(4)} km</strong>
+                    </div>`;
+                    displayPath(data);
                 } else {
-                    messageDiv.innerHTML = `<div class="error">${data.message}</div>`;
+                    messageDiv.innerHTML = `<div class="message error fade-in">
+                        <i class="fas fa-times-circle"></i> ${data.message}
+                    </div>`;
                 }
             } catch (error) {
-                messageDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                messageDiv.innerHTML = `<div class="message error fade-in">
+                    <i class="fas fa-exclamation-circle"></i> Error: ${error.message}
+                </div>`;
+            } finally {
+                hideLoading();
             }
         }
         
         // Display path on map and show results
-        function displayPath(coordinates, path, distance) {
+        function displayPath(data) {
+            const { coordinates, path, total_distance, segments } = data;
+            
             // Remove existing path
             if (pathLine) {
                 map.removeLayer(pathLine);
             }
             
-            // Create path line
+            // Create path line with modern styling
             const latLngs = coordinates.map(coord => [coord.lat, coord.lng]);
-            pathLine = L.polyline(latLngs, { color: 'red', weight: 3 }).addTo(map);
+            pathLine = L.polyline(latLngs, { 
+                color: '#00d4ff', 
+                weight: 5,
+                opacity: 0.9,
+                dashArray: '12, 8',
+                className: 'glow'
+            }).addTo(map);
             
-            // Fit map to path
-            map.fitBounds(pathLine.getBounds());
+            // Add custom markers for start and end points
+            if (coordinates.length > 0) {
+                const startIcon = L.divIcon({
+                    className: 'start-marker',
+                    html: '<i class="fas fa-play-circle" style="color: #4ade80; font-size: 32px; filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.6));"></i>',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32]
+                });
+                
+                const endIcon = L.divIcon({
+                    className: 'end-marker',
+                    html: '<i class="fas fa-flag-checkered" style="color: #ff6b6b; font-size: 32px; filter: drop-shadow(0 0 8px rgba(255, 107, 107, 0.6));"></i>',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32]
+                });
+                
+                const startMarker = L.marker([coordinates[0].lat, coordinates[0].lng], { icon: startIcon })
+                    .addTo(map)
+                    .bindPopup(`
+                        <div style="text-align: center; padding: 12px;">
+                            <h4 style="margin: 0 0 8px 0; color: #4ade80; font-weight: 600;">
+                                <i class="fas fa-play-circle"></i> MULAI
+                            </h4>
+                            <p style="margin: 0; font-weight: 500; color: #f1f5f9;">${coordinates[0].name}</p>
+                        </div>
+                    `)
+                    .openPopup();
+                
+                const endMarker = L.marker([coordinates[coordinates.length-1].lat, coordinates[coordinates.length-1].lng], { icon: endIcon })
+                    .addTo(map)
+                    .bindPopup(`
+                        <div style="text-align: center; padding: 12px;">
+                            <h4 style="margin: 0 0 8px 0; color: #ff6b6b; font-weight: 600;">
+                                <i class="fas fa-flag-checkered"></i> TUJUAN
+                            </h4>
+                            <p style="margin: 0; font-weight: 500; color: #f1f5f9;">${coordinates[coordinates.length-1].name}</p>
+                        </div>
+                    `);
+                
+                markers.push(startMarker, endMarker);
+            }
             
-            // Show results
-            document.getElementById('results').style.display = 'flex';
-            document.getElementById('solutionList').innerHTML = path.join('<br>');
-            document.getElementById('distanceResult').innerHTML = `${distance.toFixed(10)} km`;
+            // Fit map to path with padding
+            map.fitBounds(pathLine.getBounds(), { padding: [30, 30] });
+            
+            // Show results with animation
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.classList.add('fade-in');
+            
+            // Update result displays
+            document.getElementById('solutionList').innerHTML = path.map((location, index) => 
+                `<div style="margin: 8px 0; padding: 12px; background: rgba(0, 212, 255, 0.1); border-radius: 10px; border-left: 3px solid #00d4ff;">
+                    <strong style="color: #00d4ff;">${index + 1}.</strong> <span style="color: #f1f5f9;">${location}</span>
+                </div>`
+            ).join('');
+
+            // Add A* algorithm info to the solution display
+            document.getElementById('solutionList').innerHTML += `
+                <div style="margin-top: 16px; padding: 12px; background: rgba(91, 134, 229, 0.1); border-radius: 10px; border-left: 3px solid #5b86e5; text-align: center;">
+                    <i class="fas fa-brain" style="color: #5b86e5; margin-right: 8px;"></i>
+                    <span style="color: #cbd5e1; font-size: 14px;">Algoritma: <strong style="color: #5b86e5;">A* (Heuristik)</strong></span>
+                </div>
+            `;
+            
+            document.getElementById('distanceResult').innerHTML = `${total_distance.toFixed(4)} km`;
+            
+            // Show detailed distance information
+            document.getElementById('totalDistanceDetail').innerHTML = `${total_distance.toFixed(4)} km`;
+            document.getElementById('totalSegments').innerHTML = segments.length;
+            document.getElementById('totalNodes').innerHTML = path.length;
+            
+            // Show segment details
+            let segmentHtml = '';
+            segments.forEach((segment, index) => {
+                segmentHtml += `
+                    <div class="segment-item">
+                        <div class="segment-from-to">
+                            <strong style="color: #00d4ff;">${index + 1}.</strong> ${segment.from} → ${segment.to}
+                        </div>
+                        <div class="segment-distance">
+                            ${segment.distance.toFixed(4)} km
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('segmentList').innerHTML = segmentHtml;
         }
         
         // Initialize map when page loads
