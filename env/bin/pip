@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/Users/admin/Documents/ARTIFICIAL INTEL/ASTAR/env/bin/python" "$0" "$@"
+'''exec' "/Users/tabrizannazwa/Documents/GA JELAS/A-STAR-AI/env/bin/python3.13" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re
