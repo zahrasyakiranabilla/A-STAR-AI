@@ -44,8 +44,8 @@ Longitude: 110.427680
 Neighbours: Jl. Sendowo 17, Jl. Sendowo 1
 
 Name: Jl. Suari 12
-Latitude: -6.969781
-Longitude: 110.427687
+Latitude: -6.969922
+Longitude: 110.427722
 Neighbours: Jl. Sendowo 2, Jl. Pekojan 1, Jl. Kenari 1
 
 Name: Jl. Pekojan 1
@@ -54,8 +54,8 @@ Longitude: 110.427884
 Neighbours: Jl. Suari 12, Jl. Pekojan 2
 
 Name: Jl. Pekojan 2
-Latitude: -6.970833
-Longitude: 110.427895
+Latitude: -6.971091
+Longitude: 110.427123
 Neighbours: Jl. Pekojan 1, Jl. Kyai H. Agus Salim No.7
 
 Name: Jl. Ki Nartosabdo 6
@@ -69,8 +69,8 @@ Longitude: 110.426940
 Neighbours: Jl. Suari 12, Jl. Kenari 2
 
 Name: Jl. Kenari 2
-Latitude: -6.970262
-Longitude: 110.426225
+Latitude: -6.970266
+Longitude: 110.426208
 Neighbours: Jl. Kenari 1, Jl. MPU Tantular 1, Jl. Sendowo Purwodinatan
 
 Name: Jl. MPU Tantular 1
@@ -79,62 +79,63 @@ Longitude: 110.425727
 Neighbours: Jl. Kenari 2, Jl. Mpu Tantular 2, Jl. Sendowo 7-9
 
 Name: Jl. Mpu Tantular 2
-Latitude: -6.971089
-Longitude: 110.425707
+Latitude: -6.971386
+Longitude: 110.425715
 Neighbours:  Jl. Kyai H. Agus Salim No.7, Jl. MPU Tantular 1
 
 Name: Jl. Kyai H. Agus Salim No.7
-Latitude: -6.971111
-Longitude: 110.426389
+Latitude: -6.971139
+Longitude: 110.426542
 Neighbours: Jl. Kyai H. Agus Salim No.121, Jl. Mpu Tantular 2
 
 Name: Jl. Kyai H. Agus Salim No.121
-Latitude: -6.971111
-Longitude: 110.426389
+Latitude: -6.971226
+Longitude: 110.426547
 Neighbours: Jl. Kyai H. Agus Salim No.7, Jl. Ki Nartosabdo 6
 
 Name: Jl. Sendowo 7-9
-Latitude: -6.969722
-Longitude: 110.425556
+Latitude: -6.969946
+Longitude: 110.425726
 Neighbours: Jl. MPU Tantular 1,  Jl. Sendowo Purwodinatan, Jl. Sendowo
 
 Name: Jl. Sendowo Purwodinatan
-Latitude: -6.969722
+Latitude: -6.969857
 Longitude: 110.426111
 Neighbours: Jl. Kenari 2, Jl. Sendowo 7-9, Jl. Sendowo Barat
 
 Name: Jl. Sendowo Barat
-Latitude: -6.969722
-Longitude: 110.426389
+Latitude: -6.969793
+Longitude: 110.426594
 Neighbours: Jl. Sendowo 1, Jl. Sendowo Purwodinatan
 
 Name: Jl. Roda II
-Latitude: -6.969167
-Longitude: 110.426389
+Latitude: -6.969326
+Longitude: 110.426602
 Neighbours: Jl. Kepodang, Jl. Sendowo, Jl. Branjangan
 
 Name: Jl. Sendowo
-Latitude: -6.969444
-Longitude: 110.425556
+Latitude: -6.969543
+Longitude: 110.425712
 Neighbours: Jl. Sendowo 7-9, Jl. Roda II, Jl. Imam Bonjol Depan Rumah Pompa
+
 Name: Jl. Branjangan
-Latitude: -6.968333
-Longitude: 110.426389
+Latitude: -6.968525
+Longitude: 110.426571
 Neighbours: Jl. Letjen Suprapto 30, Jl. Roda II, Jl. Imam Bonjol Depan Rumah Pompa
 
 Name: Jl. Imam Bonjol Depan Rumah Pompa
-Latitude: -6.968611
-Longitude: 110.425000
+Latitude: -6.968762
+Longitude: 110.425227
 Neighbours: Jl. Sendowo, Jl. Branjangan, Jl. Kolonel Sugiyono
 
 Name: Jl. Kolonel Sugiyono
-Latitude: -6.968889
-Longitude: 110.424722
+Latitude: -6.969039
+Longitude: 110.424799
 Neighbours: Jl. Imam Bonjol, Jl. Imam Bonjol Depan Rumah Pompa
 
 Name: Jl. Imam Bonjol
-Latitude: -6.969722
-Longitude: 110.423889
+Latitude: -6.969987
+Longitude: 110.423877
 Neighbours: Jl. Ki Nartosabdo 6, Jl. Pemuda, Jl. Kolonel Sugiyono
 
 Name: Jl. Pemuda
@@ -143,9 +144,6 @@ Longitude: 110.423056
 Neighbours: Jl. Imam Bonjol, Alun-Alun Masjid Agung
 
 Name: Alun-Alun Masjid Agung
-Latitude: -6.971111
-Longitude: 110.423611
+Latitude: -6.971354
+Longitude: 110.423858
 Neighbours: Jl. Ki Nartosabdo 6, Jl. Pemuda
-
-
-
